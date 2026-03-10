@@ -10,8 +10,9 @@ app.listen(process.env.PORT, () => {
 });
 
 
-
-app.use("/api/students" ,router);
 app.use(express.json());
+app.use("/api/students" ,router);
+app.use("/uploads",express.static("uploads"));
+
 
 
