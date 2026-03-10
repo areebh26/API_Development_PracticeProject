@@ -1,10 +1,10 @@
-import { students, students } from "../models/students.model.js";
+import {  students } from "../models/students.model.js";
 
 
 
 let getAllStudents = async (req,res) => {
     try{
-        let students = students.find();
+        let students = await students.find();
         if(!students){
             res.status(404).json("no record availble");
         }else{
@@ -12,6 +12,9 @@ let getAllStudents = async (req,res) => {
         }
     }catch(error){
         res.status(500).json("Something went wrong with the server");
-        console.log(error.message+"I came from getAllStudents function");
+        console.log(error.message);
     }
 };
+
+
+export {getAllStudents};
