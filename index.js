@@ -5,14 +5,15 @@ import  router  from './routes/students.routes.js';
 let app = express();
 dotenv.config();
 connectDB();
-app.listen(process.env.PORT, () => {
-    console.log('Server stared on port 3000!');
-});
+
 
 
 app.use(express.json());
 app.use("/api/students" ,router);
 app.use("/uploads",express.static("uploads"));
+app.listen(process.env.PORT, () => {
+    console.log('Server stared on port 3000!');
+});
 
 
 
