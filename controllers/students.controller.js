@@ -1,7 +1,8 @@
 import {  students } from "../models/students.model.js";
-import mongoose from "mongoose";
 import multer from "multer";
 import path from "path";
+import fs from "fs";
+
 
 
 let uploadFile = multer({
@@ -76,7 +77,7 @@ let getOneStudent = async (req,res) => {
 let createStudent = async (req,res)=>{
     try {
         if(!req.file){
-            await students.insertOne(req.body);
+            await students.insertOne({...req.body, profile_pic : ""});
             res.status(201).json("Record added");
         }else{
             await students.insertOne({...req.body, profile_pic : req.file.filename});
@@ -89,7 +90,84 @@ let createStudent = async (req,res)=>{
     
 };
 
+let deleteStudent = async (req,res) => {
+    try {
+        let student = await students.findOne({_id:req.params.id});
+        if(!student){
+            res.status(400).json("cannot find record");
+        }else{
+            let address = student.profile_pic;
+            await students.deleteOne({_id : req.params.id});
+            if(address){
+                let fpath = path.join("uploads",address);
+                fs.unlink(fpath,(error)=>{
+                    if(error){
+                        console.log("Error occuered while unlinking the file : " + error.message);
+                        
+                    }
+                });
+            }
+            res.status(200).json("Deletion Done");
+        }
+        
+    } catch (error) {
+        res.status(500).json("Something went wrong with the server");
+        console.log(error.message);
+    }
+};
+
+let updateStudent = async (req,res) => {
+    try {
+        let student = await students.findOne({_id:req.params.id});
+        let address = student.profile_pic;
+        if(!student){
+            fs.unlink(path.join("uploads",req.file.filename),(error)=>{
+                if(error){
+                    console.log("unable to delete file " + error.message );
+                    
+                }
+            })
+            res.status(400).json("cannot find record");
+        }else{
+             if(req.file){
+                await students.updateOne({_id:req.params.id},
+                    {$set:{
+                        name:req.body.name,
+                        email:req.body.email,
+                        phone:req.body.phone,
+                        gender:req.body.gender,
+                        profile_pic:req.file.filename
+                    }}
+                );
+                if(address){
+                     fs.unlink(path.join("uploads",address),(error)=>{
+                            if(error){
+                                console.log("unable to delete file " + error.message );
+                    
+                            }
+                        })
+                }
+
+             }else{
+                 await students.updateOne({_id:req.params.id},
+                    {$set:{
+                        name:req.body.name,
+                        email:req.body.email,
+                        phone:req.body.phone,
+                        gender:req.body.gender
+                       
+                    }}
+                );
+             }
+             res.status(200).json("Updation Done");
+        }
+    }catch(error){
+        res.status(500).json("Something went wrong with the server");
+        console.log(error.message);
+    }
+}
 
 
 
-export {getAllStudents,getOneStudent,createStudent,uploadFile};
+
+export {getAllStudents,getOneStudent,createStudent,uploadFile,deleteStudent,updateStudent};
