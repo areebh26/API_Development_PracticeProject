@@ -2,6 +2,7 @@ import  express  from 'express';
 import dotenv from "dotenv";
 import { connectDB } from './config/students.database.js';
 import  router  from './routes/students.routes.js';
+import multer from 'multer';
 let app = express();
 dotenv.config();
 connectDB();
